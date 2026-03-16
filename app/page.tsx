@@ -11,6 +11,8 @@ import ConfidenceRing from "@/components/ConfidenceRing";
 import TagCategories from "@/components/TagCategories";
 import TagCategoryCard from "@/components/TagCategoryCard";
 import FlaggedTags from "@/components/FlaggedTags";
+import SaveToast from "@/components/SaveToast";
+import HistoryGrid from "@/components/HistoryGrid";
 import { API_BASE_URL } from "@/lib/constants";
 import { visionToCategoryTags } from "@/lib/visionMapper";
 import type { AnalyzeImageResponse } from "@/lib/types";
@@ -139,6 +141,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+                {result.saved_to_db && <SaveToast show />}
                 {(() => {
                   const tagsByCategory = result.tags_by_category;
                   if (!tagsByCategory) {
@@ -197,6 +200,10 @@ export default function Home() {
             )}
           </div>
         </motion.div>
+        <section className="mx-auto mt-12 max-w-7xl border-t border-slate-700/50 px-4 pt-8 md:px-6">
+          <h2 className="mb-4 text-lg font-semibold text-slate-200">Tagged images</h2>
+          <HistoryGrid refetchTrigger={result?.saved_to_db} />
+        </section>
       </main>
     </div>
   );

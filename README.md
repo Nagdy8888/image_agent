@@ -5,7 +5,7 @@ Next.js App Router frontend for the Image Tagging Agent dashboard and search pag
 | Folder / File | Purpose |
 |---------------|---------|
 | `app/` | App Router: layout.tsx (Outfit + Inter, theme), page.tsx (dashboard), globals.css |
-| `components/` | ThemeProvider, ThemeToggle, ImageUploader, ProcessingOverlay, JsonViewer, ConfidenceRing, TagCategories, **TagCategoryCard**, **TagChip**, FlaggedTags |
+| `components/` | ThemeProvider, ThemeToggle, ImageUploader, ProcessingOverlay, JsonViewer, ConfidenceRing, TagCategories, TagCategoryCard, TagChip, FlaggedTags, **SaveToast**, **HistoryGrid** |
 | `lib/` | types.ts, constants.ts, visionMapper.ts (vision_raw_tags → category tags for UI) |
 | `Dockerfile` | Production build for docker-compose (NEXT_PUBLIC_API_URL) |
 

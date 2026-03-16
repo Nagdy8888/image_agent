@@ -56,6 +56,20 @@ export interface AnalyzeImageResponse {
   validated_tags?: Record<string, Array<{ value: string; confidence: number; parent?: string }>>;
   /** Final TagRecord (Phase 4) */
   tag_record?: TagRecord;
+  /** True when record was persisted to Supabase (Phase 5) */
+  saved_to_db?: boolean;
+}
+
+/** One item from GET /api/tag-images (history list) */
+export interface TagImageItem {
+  image_id: string;
+  tag_record: TagRecord;
+  search_index?: string[];
+  needs_review: boolean;
+  processing_status: string;
+  image_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /** Final assembled tag record (Phase 4) */
