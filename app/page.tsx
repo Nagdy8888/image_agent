@@ -7,7 +7,12 @@ import ImageUploader from "@/components/ImageUploader";
 import ProcessingOverlay from "@/components/ProcessingOverlay";
 import JsonViewer from "@/components/JsonViewer";
 import ThemeToggle from "@/components/ThemeToggle";
+import ConfidenceRing from "@/components/ConfidenceRing";
+import TagCategories from "@/components/TagCategories";
+import TagCategoryCard from "@/components/TagCategoryCard";
+import FlaggedTags from "@/components/FlaggedTags";
 import { API_BASE_URL } from "@/lib/constants";
+import { visionToCategoryTags } from "@/lib/visionMapper";
 import type { AnalyzeImageResponse } from "@/lib/types";
 
 export default function Home() {
@@ -25,8 +30,9 @@ export default function Home() {
     setResult(null);
     setLoading(true);
     setCurrentStep(1);
-
     const step2Timer = setTimeout(() => setCurrentStep(2), 800);
+    const step3Timer = setTimeout(() => setCurrentStep(3), 2200);
+    const step4Timer = setTimeout(() => setCurrentStep(4), 4000);
 
     const formData = new FormData();
     formData.append("file", uploadedFile);
@@ -51,6 +57,8 @@ export default function Home() {
       });
     } finally {
       clearTimeout(step2Timer);
+      clearTimeout(step3Timer);
+      clearTimeout(step4Timer);
       setLoading(false);
     }
   }, [previewUrl]);
@@ -60,6 +68,11 @@ export default function Home() {
     (rawTags && typeof rawTags === "object" && "visual_description" in rawTags
       ? (rawTags as { visual_description?: string }).visual_description
       : null) ?? result?.vision_description ?? "";
+  const categoryTags = typeof rawTags === "object" && rawTags !== null
+    ? visionToCategoryTags(rawTags as Record<string, unknown>)
+    : {};
+  const confidence = result?.confidence ?? null;
+  const flaggedTags = result?.flagged_tags ?? [];
 
   return (
     <div className="min-h-screen bg-[var(--background)] bg-pattern">
@@ -110,16 +123,68 @@ export default function Home() {
             {!loading && result && (
               <>
                 <div className="glass rounded-xl p-5">
-                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
-                    Vision Description
-                  </h2>
-                  <p className="text-slate-200">
-                    {result.error
-                      ? result.error
-                      : visionText || "No description returned."}
-                  </p>
+                  <div className="flex gap-6">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                        Vision Description
+                      </h2>
+                      <p className="text-slate-200">
+                        {result.error
+                          ? result.error
+                          : visionText || "No description returned."}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <ConfidenceRing confidence={confidence} />
+                    </div>
+                  </div>
                 </div>
-                <JsonViewer data={result.vision_raw_tags || {}} />
+                {(() => {
+                  const tagsByCategory = result.tags_by_category;
+                  if (!tagsByCategory) {
+                    if (result.season_tags && result.season_tags.length > 0) {
+                      return (
+                        <TagCategoryCard
+                          category="season"
+                          tags={result.season_tags}
+                          confidenceScores={result.season_confidence_scores ?? {}}
+                        />
+                      );
+                    }
+                    return null;
+                  }
+                  return (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {(
+                      [
+                        "season",
+                        "theme",
+                        "objects",
+                        "dominant_colors",
+                        "design_elements",
+                        "occasion",
+                        "mood",
+                        "product_type",
+                      ] as const
+                    ).map((cat) => {
+                      const data = tagsByCategory[cat] ?? { tags: [], confidence_scores: {} };
+                      return (
+                        <TagCategoryCard
+                          key={cat}
+                          category={cat}
+                          tags={data.tags}
+                          confidenceScores={data.confidence_scores ?? {}}
+                        />
+                      );
+                    })}
+                  </div>
+                  );
+                })()}
+                {!result.tags_by_category && (
+                  <TagCategories categoryTags={categoryTags} />
+                )}
+                <FlaggedTags flagged={flaggedTags} />
+                <JsonViewer data={result.vision_raw_tags || {}} title="Raw output" />
               </>
             )}
             {!loading && !result && file && (
