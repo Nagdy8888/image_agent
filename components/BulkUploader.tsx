@@ -12,7 +12,7 @@ import type {
 } from "@/lib/types";
 
 const ACCEPT = { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"], "image/webp": [".webp"] };
-const POLL_INTERVAL_MS = 2000;
+const POLL_INTERVAL_MS = 800;
 
 interface BulkUploaderProps {
   onBulkComplete?: () => void;
@@ -68,11 +68,19 @@ export default function BulkUploader({ onBulkComplete }: BulkUploaderProps) {
   }, [onBulkComplete]);
 
   useEffect(() => {
-    if (!batchId || status?.status === "complete") return;
-    fetchStatus(batchId);
-    pollRef.current = setInterval(() => fetchStatus(batchId), POLL_INTERVAL_MS);
+    if (!batchId) return;
+    let cancelled = false;
+    const poll = () => {
+      if (cancelled) return;
+      fetchStatus(batchId);
+    };
+    poll();
+    const intervalId = setInterval(poll, POLL_INTERVAL_MS);
+    pollRef.current = intervalId;
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+      cancelled = true;
+      clearInterval(intervalId);
+      pollRef.current = null;
     };
   }, [batchId, fetchStatus]);
 
@@ -122,6 +130,7 @@ export default function BulkUploader({ onBulkComplete }: BulkUploaderProps) {
   const completed = status?.completed ?? 0;
   const failed = status?.failed ?? 0;
   const total = status?.total ?? files.length;
+  const processedCount = status?.results?.length ?? (completed + failed);
 
   return (
     <div className="flex flex-col gap-4">
@@ -142,13 +151,13 @@ export default function BulkUploader({ onBulkComplete }: BulkUploaderProps) {
           {isProcessing && (
             <div className="rounded-lg bg-slate-800/60 p-3">
               <p className="mb-2 text-sm text-slate-300">
-                Processing {completed + failed} of {total} images…
+                Processing {processedCount} of {total} images…
               </p>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700">
                 <motion.div
                   className="h-full bg-indigo-500"
                   initial={{ width: 0 }}
-                  animate={{ width: `${total ? ((completed + failed) / total) * 100 : 0}%` }}
+                  animate={{ width: `${total ? (processedCount / total) * 100 : 0}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
