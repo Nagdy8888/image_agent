@@ -86,3 +86,17 @@ export interface TagRecord {
   needs_review: boolean;
   processed_at: string;
 }
+
+/** One category in GET /api/taxonomy response (Phase 6) */
+export type TaxonomyCategory =
+  | { type: "flat"; values: string[] }
+  | { type: "hierarchical"; groups: Record<string, string[]> };
+
+/** GET /api/taxonomy response */
+export type TaxonomyResponse = Record<string, TaxonomyCategory>;
+
+/** GET /api/available-filters response: category -> list of tag values present in (filtered) data */
+export type AvailableFilters = Record<string, string[]>;
+
+/** Selected filters for search: category -> selected tag values */
+export type SearchFilters = Record<string, string[]>;

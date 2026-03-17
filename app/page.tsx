@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Network, Zap } from "lucide-react";
 import ImageUploader from "@/components/ImageUploader";
+import Navbar from "@/components/Navbar";
 import ProcessingOverlay from "@/components/ProcessingOverlay";
 import JsonViewer from "@/components/JsonViewer";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -65,6 +66,14 @@ export default function Home() {
     }
   }, [previewUrl]);
 
+  const handleReset = useCallback(() => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setFile(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setMetadata(null);
+  }, [previewUrl]);
+
   const rawTags = result?.vision_raw_tags ?? {};
   const visionText =
     (rawTags && typeof rawTags === "object" && "visual_description" in rawTags
@@ -78,6 +87,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] bg-pattern">
+      <Navbar />
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-700/50 bg-slate-900/80 px-6 py-4 backdrop-blur-xl">
         <h1 className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent md:text-3xl">
           Image Tagging Agent
@@ -105,6 +115,7 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <ImageUploader
               onUpload={handleUpload}
+              onReset={result ? handleReset : undefined}
               disabled={loading}
               previewUrl={previewUrl}
               metadata={
