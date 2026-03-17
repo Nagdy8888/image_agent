@@ -14,6 +14,7 @@ import TagCategoryCard from "@/components/TagCategoryCard";
 import FlaggedTags from "@/components/FlaggedTags";
 import SaveToast from "@/components/SaveToast";
 import HistoryGrid from "@/components/HistoryGrid";
+import BulkUploader from "@/components/BulkUploader";
 import { API_BASE_URL } from "@/lib/constants";
 import { visionToCategoryTags } from "@/lib/visionMapper";
 import type { AnalyzeImageResponse } from "@/lib/types";
@@ -25,6 +26,7 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [result, setResult] = useState<AnalyzeImageResponse | null>(null);
   const [metadata, setMetadata] = useState<AnalyzeImageResponse["metadata"] | null>(null);
+  const [bulkCompleteTrigger, setBulkCompleteTrigger] = useState(0);
 
   const handleUpload = useCallback(async (uploadedFile: File) => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -211,9 +213,15 @@ export default function Home() {
             )}
           </div>
         </motion.div>
+        <section id="bulk" className="mx-auto mt-12 max-w-7xl border-t border-slate-700/50 px-4 pt-8 md:px-6">
+          <h2 className="mb-4 text-lg font-semibold text-slate-200">Bulk Upload</h2>
+          <div className="rounded-xl border border-slate-600/50 bg-slate-800/30 p-4">
+            <BulkUploader onBulkComplete={() => setBulkCompleteTrigger((n) => n + 1)} />
+          </div>
+        </section>
         <section className="mx-auto mt-12 max-w-7xl border-t border-slate-700/50 px-4 pt-8 md:px-6">
           <h2 className="mb-4 text-lg font-semibold text-slate-200">Tagged images</h2>
-          <HistoryGrid refetchTrigger={result?.saved_to_db} />
+          <HistoryGrid refetchTrigger={result?.saved_to_db ?? bulkCompleteTrigger} />
         </section>
       </main>
     </div>

@@ -100,3 +100,28 @@ export type AvailableFilters = Record<string, string[]>;
 
 /** Selected filters for search: category -> selected tag values */
 export type SearchFilters = Record<string, string[]>;
+
+/** Response from POST /api/bulk-upload */
+export interface BulkUploadResponse {
+  batch_id: string;
+  total: number;
+  status: string;
+}
+
+/** One item in GET /api/bulk-status results */
+export interface BulkResultItem {
+  image_id: string;
+  image_url: string;
+  processing_status: string;
+  error?: string;
+}
+
+/** Response from GET /api/bulk-status/{batch_id} */
+export interface BulkStatusResponse {
+  batch_id: string;
+  total: number;
+  completed: number;
+  failed: number;
+  status: string;
+  results: BulkResultItem[];
+}
