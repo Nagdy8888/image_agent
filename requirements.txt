@@ -1,0 +1,13 @@
+# Backend (match container image_agent-backend)
+langgraph
+langchain-openai
+langchain-core
+langsmith
+pydantic
+Pillow
+psycopg2-binary
+python-dotenv
+httpx
+fastapi
+uvicorn
+python-multipart
