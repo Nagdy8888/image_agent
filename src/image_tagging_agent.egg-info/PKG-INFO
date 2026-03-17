@@ -1,0 +1,103 @@
+Metadata-Version: 2.4
+Name: image-tagging-agent
+Version: 0.1.0
+Summary: AI-powered image tagging agent using OpenAI, LangGraph, and Supabase
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: langgraph
+Requires-Dist: langchain-openai
+Requires-Dist: langchain-core
+Requires-Dist: langsmith
+Requires-Dist: pydantic
+Requires-Dist: Pillow
+Requires-Dist: psycopg2-binary
+Requires-Dist: python-dotenv
+Requires-Dist: httpx
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: python-multipart
+
+# Image Tagging Agent
+
+**Structured image tagging with AI** — upload images, get taxonomy-backed tags in eight categories, store in Supabase, and search from the dashboard.
+
+---
+
+## Overview
+
+This project provides an end-to-end pipeline for analyzing images and assigning structured tags (season, theme, objects, dominant colors, design elements, occasion, mood, product type). It uses **OpenAI GPT-4o** for vision and extraction, **LangGraph** for the orchestration graph (preprocess → vision → parallel taggers → validation → aggregation), and **Supabase** (PostgreSQL) for persistence and filtered search. A **Next.js** dashboard supports single and bulk upload, live results, and a dedicated Search page with cascading filters.
+
+---
+
+## Features
+
+- **Single-image analysis** — Upload one image; get vision description, eight tag categories, confidence scores, and optional flagged tags.
+- **Bulk upload** — Queue multiple images; background processing with progress; results written to Supabase and reflected in Search and History.
+- **Search & filters** — Filter stored images by any combination of taxonomy values; sidebar with eight filter dropdowns and a results grid with detail modal.
+- **Tag taxonomy** — Single source of truth in code; validated tags only from allowed values; hierarchical support where needed (e.g. objects, colors).
+- **Supabase integration** — Optional: persist tag records and search index; GIN-indexed array search for fast filtered queries.
+
+---
+
+## Tech stack
+
+| Layer      | Technologies |
+|-----------|--------------|
+| **Backend** | Python 3.11+, FastAPI, LangGraph, OpenAI API (GPT-4o) |
+| **Database** | Supabase (PostgreSQL), psycopg2 |
+| **Frontend** | Next.js, React, TypeScript |
+| **Run** | Docker Compose (backend + frontend) |
+
+---
+
+## Project structure
+
+| Directory   | Purpose |
+|------------|---------|
+| **`src/`** | Backend: `image_tagging` agent (graph, nodes, taxonomy, schemas), FastAPI `server.py`, `services/supabase` (DB client, search). |
+| **`frontend/`** | Next.js app: dashboard (single + bulk upload), Search page (filters, grid, detail modal), Navbar, History grid. |
+| **`sql/`** | Supabase/Postgres DDL (e.g. `image_tags` table, GIN index). |
+| **`scripts/`** | Utilities (e.g. sample image download for bulk testing). |
+| **`docs/`** | Documentation: quickstart, architecture, curriculum, reports, plans, errors. |
+| **`tests/`** | Unit and notebook tests. |
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- **Docker & Docker Compose** (recommended), or Python 3.11+ and Node.js 18+ for local run.
+- **`.env`** at project root with:
+  - `OPENAI_API_KEY` (required for analysis).
+  - `DATABASE_URL` or `DATABASE_URI` (optional; enables Supabase storage and search).
+
+### Quick start (Docker)
+
+From the project root:
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+- **Dashboard:** [http://localhost:3000](http://localhost:3000) — upload, bulk upload, and search.
+- **API:** [http://localhost:8000](http://localhost:8000) — `GET /api/health`, `POST /api/analyze-image`, bulk and search endpoints.
+
+### Local development
+
+See **[docs/quickstart/SETUP.md](docs/quickstart/SETUP.md)** for install and run steps. See **[docs/quickstart/DOCKER_SETUP.md](docs/quickstart/DOCKER_SETUP.md)** for Docker details.
+
+---
+
+## Documentation
+
+| Section | Description |
+|--------|-------------|
+| [Quickstart](docs/quickstart/README.md) | Setup, run, and test. |
+| [Architecture](docs/architecture/README.md) | Graph nodes, database, API reference. |
+| [Curriculum](docs/curriculum/README.md) | Learning path (concepts and code). |
+| [Plans](docs/plans/README.md) | Phase-by-phase setup guides. |
+| [Reports](docs/reports/README.md) | Status, features, decisions. |
+| [Full index](docs/README.md) | All documentation. |
+
