@@ -1,14 +1,17 @@
-# Frontend
+# Image Tagging Agent
 
-Next.js App Router frontend for the Image Tagging Agent dashboard and search page.
+AI-powered image tagging: upload images, get structured tags (season, theme, objects, colors, design, occasion, mood, product type), save to Supabase, and search with filters.
 
-| Folder / File | Purpose |
-|---------------|---------|
-| `app/` | App Router: layout.tsx (Outfit + Inter, theme), page.tsx (dashboard), globals.css |
-| `components/` | ThemeProvider, ThemeToggle, ImageUploader, ProcessingOverlay, JsonViewer, ConfidenceRing, TagCategories, TagCategoryCard, TagChip, FlaggedTags, **SaveToast**, **HistoryGrid** |
-| `lib/` | types.ts, constants.ts, visionMapper.ts (vision_raw_tags → category tags for UI) |
-| `Dockerfile` | Production build for docker-compose (NEXT_PUBLIC_API_URL) |
+**Stack:** LangGraph (OpenAI GPT-4o vision) + FastAPI + Supabase + Next.js.
 
-**Phase 1–2:** Dashboard with upload; ProcessingOverlay (Preprocessing → Vision Analysis → **Tagging**); vision description + confidence ring; **Season** card from backend tagger (`season_tags` + `season_confidence_scores`) via TagCategoryCard and TagChip; categorized tag boxes from vision (taxonomy-filtered); flagged tags; raw JSON. API returns `season_tags` and `season_confidence_scores` (Phase 2).
+- **Backend:** Pipeline (preprocessor → vision → 8 parallel taggers → validator → confidence filter → aggregator); REST API for analyze, tag, save, search, bulk upload.
+- **Frontend:** Dashboard (upload, results, save, history), Search page (filters, detail modal), Bulk uploader.
 
-Run locally: `npm run dev` → http://localhost:3000.
+**Quick start:** See [docs/quickstart/README.md](docs/quickstart/README.md) for local and Docker setup.
+
+| Folder | Purpose |
+|--------|---------|
+| [docs/](docs/README.md) | Curriculum, quickstart, architecture, reports, errors, plans. |
+| [frontend/](frontend/README.md) | Next.js dashboard and search UI. |
+| [src/](src/README.md) | Backend package (image_tagging, Supabase, server). |
+| [tests/](tests/README.md) | Tests and notebooks. |
